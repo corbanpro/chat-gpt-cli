@@ -1,3 +1,8 @@
+mod read_command;
+
 fn main() {
-    println!("Hello, world!");
+    let args = read_command::main();
+
+    println!("message: '{}'", args.message);
+    println!("version: '{}'", args.version);
 }

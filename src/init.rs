@@ -11,7 +11,7 @@ pub fn get_args() -> (String, String) {
 
     while let Some(word) = args.next() {
         if word == "-v" {
-            version = args.next().unwrap();
+            version = args.next().expect("Please input a version");
             let valid_versions = vec!["gpt-3.5-turbo", "gpt-4"];
             if !valid_versions.contains(&&version[..]) {
                 panic!(
@@ -21,7 +21,7 @@ pub fn get_args() -> (String, String) {
             }
             continue;
         } else if word == "-f" {
-            secrets_path = args.next().unwrap();
+            secrets_path = args.next().expect("Please input a file path");
             continue;
         } else {
             panic!("Invalid argument: {}", word);

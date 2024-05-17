@@ -33,8 +33,22 @@ pub async fn main(
         .send()
         .await?;
     let json = res.text().await?;
-    let json: serde_json::Value = serde_json::from_str(&json).unwrap();
-    let response_message = json["choices"][0]["message"]["content"].as_str().unwrap();
+    let json: serde_json::Value = match serde_json::from_str(&json) {
+        Ok(json) => json,
+        Err(err) => {
+            eprintln!("Error parsing response json: {}", err);
+            return Ok("Error: No response from OpenAI".to_string());
+        }
+    };
+
+    if json["choices"].is_array() {
+        return Ok("Error: No response from OpenAI".to_string());
+    }
+
+    let response_message = match json["choices"][0]["message"]["content"].as_str() {
+        Some(response) => response,
+        None => "Error: No response from OpenAI",
+    };
 
     commands.push(Message::new(
         "assistant".to_string(),

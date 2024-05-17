@@ -14,12 +14,19 @@ impl Message {
 }
 
 pub async fn main(version: &str, api_key: &str) {
-    println!("Enter message or type \"q\" to exit:");
+    println!("Enter message or type \"q\" to exit:\n");
+    println!("{}", "Hello! How can I assist you today?\n".blue());
     let mut commands: Vec<Message> = Vec::new();
 
     loop {
         let mut command = String::new();
-        std::io::stdin().read_line(&mut command).unwrap();
+        match std::io::stdin().read_line(&mut command) {
+            Ok(_) => {}
+            Err(err) => {
+                eprintln!("Error reading input: {}", err);
+                continue;
+            }
+        }
         let command = command.trim().to_string();
 
         if command == "q" {
@@ -29,7 +36,10 @@ pub async fn main(version: &str, api_key: &str) {
 
         let response = send_message::main(&mut commands, &version, &api_key)
             .await
-            .unwrap();
+            .unwrap_or_else(|err| {
+                eprintln!("Error sending message: {}", err);
+                "Error: No response from OpenAI".to_string()
+            });
         println!("\n{}\n", response.blue())
     }
 }

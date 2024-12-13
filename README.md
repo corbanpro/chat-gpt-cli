@@ -1,7 +1,11 @@
 # CGPT
 
-to get started, put your api key in the creds.txt file.
-Alternatively, put it in your home directory.
+to get started, run the following command to put your OpenAi API key in the right spot
+
+```
+echo "api key" > ~/.secrets/OPENAI_API_KEY
+
+```
 
 ## flags
 

@@ -1,7 +1,10 @@
 use colored::Colorize;
+use serde::{Deserialize, Serialize};
+use termimad::crossterm::style::Color::*;
 
 use crate::send_message;
 
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Message {
     pub role: String,
     pub content: String,
@@ -13,33 +16,38 @@ impl Message {
     }
 }
 
-pub async fn main(version: &str, api_key: &str) {
-    println!("Enter message or type \"q\" to exit:\n");
-    println!("{}", "Hello! How can I assist you today?\n".blue());
+pub async fn main(model: &str, api_key: &str) {
+    let line = "##############################################################################################################################";
+    let mut skin = termimad::MadSkin::default();
+    skin.paragraph.set_fg(Blue);
+
+    println!(
+        "{}\n\n\n{}\n\n\n{}\n\n",
+        line.yellow(),
+        "Hello! How can I assist you today?".blue(),
+        line.yellow()
+    );
     let mut commands: Vec<Message> = Vec::new();
 
     loop {
         let mut command = String::new();
-        match std::io::stdin().read_line(&mut command) {
-            Ok(_) => {}
-            Err(err) => {
-                eprintln!("Error reading input: {}", err);
-                continue;
-            }
-        }
-        let command = command.trim().to_string();
+
+        std::io::stdin().read_line(&mut command).expect("Error reading input");
+
+        let command = command.trim();
 
         if command == "q" {
             break;
         }
-        commands.push(Message::new("user".to_string(), command.clone()));
+        commands.push(Message::new("user".to_string(), command.to_string()));
 
-        let response = send_message::main(&mut commands, &version, &api_key)
-            .await
-            .unwrap_or_else(|err| {
-                eprintln!("Error sending message: {}", err);
-                "Error: No response from OpenAI".to_string()
-            });
-        println!("\n{}\n", response.blue())
+        let response = send_message::main(&mut commands, model, api_key).await;
+
+        println!(
+            "\n\n{}\n\n\n{}\n\n{}\n\n",
+            line.yellow(),
+            skin.term_text(&response),
+            line.yellow()
+        );
     }
 }
